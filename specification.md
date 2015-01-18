@@ -154,27 +154,6 @@ For example:
      ...
 ```
 
-For a harness written in Perl the corresponding data structure would look like this:
-
-```
-    $diagnostic = {
-       'message'  => "Failed with error 'hostname peebles.example.com not found'",
-       'severity' => 'fail',
-       'data' => {
-           'got' => {
-               'hostname' => 'peebles.example.com',
-               'address'  => undef,
-           },
-           'expected' => {
-               'hostname' => 'peebles.example.com',
-               'address'  => '85.193.201.85',
-           }
-       },
-   };
-```
-
-Currently (2007/03/17) the format of the data structure represented by a YAML block has not been standardized. It is likely that whatever schema emerges will be able to capture the kind of forensic information about a test's execution seen in the example above.
-
 ## DIRECTIVES
 
 Directives are special notes that follow a # on the test line. Only two are currently defined: TODO and SKIP. Note that these two keywords are not case-sensitive.
@@ -348,4 +327,5 @@ This listing shows an alternate output where the test numbers aren't provided. T
 - Define the exit code of the process.
 - Confirm use of bugs, authors, acknowledgements and copyright
 - Remove any further wording that doesn't belong in a specification
+- Add glossary of terms
 
