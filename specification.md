@@ -321,6 +321,9 @@ This listing shows an alternate output where the test numbers aren't provided. T
    ok - board has 7 tiles + starter tile
    1..9
 ```
+# Recommended Media Type Usage
+When streaming TAP across a network it is MAY be possible to provide a MIME type for content negotiation.
+The suggested MIME type to transfer TAP documents is `application/tap`.
 
 ## TODO
 
