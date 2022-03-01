@@ -1,11 +1,11 @@
 ---
 layout: default
-title: TAP 13 specification
+title: TAP 14 specification
 ---
 
 # NAME
 
-TAP13 - The Test Anything Protocol v13
+TAP14 - The Test Anything Protocol v14
 
 ## SYNOPSIS
 
@@ -13,14 +13,14 @@ TAP, the Test Anything Protocol, is a simple text-based interface between
 testing modules a test harness. TAP started life as part of the test
 harness for Perl but now has implementations in C/C++, Python, PHP, Perl,
 JavaScript, and probably others by the time you read this.  This document
-describes version 13 of TAP. Go to TAP to read about previous versions.
+describes version 14 of TAP. Go to TAP to read about previous versions.
 
-## THE TAP13 FORMAT
+## THE TAP14 FORMAT
 
-TAP13's general format is:
+TAP14's general format is:
 
 ```
-TAP version 13
+TAP version 14
 1..N
 ok 1 Description # Directive
 # Diagnostic
@@ -45,7 +45,7 @@ more tests....
 For example, a test file's output might look like:
 
 ```
-TAP version 13
+TAP version 14
 1..4
 ok 1 - Input file opened
 not ok 2 - First line of the input valid
@@ -80,11 +80,16 @@ considered test output.
 
 ### The version
 
-To indicate that this is TAP13 the first line must be
+To indicate that this is TAP14 the first line must be
 
 ```
-TAP version 13
+TAP version 14
 ```
+
+Parsers _may_ interpret ostensibly
+[TAP13](https://testanything.org/tap-version-13-specification.html) streams
+as TAP14, as this specification is compatible with observed behavior of
+existing TAP13 consumers and producers.
 
 ### The plan
 
@@ -225,7 +230,7 @@ If the directive starts with # TODO, the test is counted as a todo test,
 and the text after TODO is the explanation.
 
 ```
-not ok 13 # TODO bend space and time
+not ok 14 # TODO bend space and time
 ```
 
 Note that if the TODO has an explanation it must be separated from TODO by
@@ -278,8 +283,8 @@ Bail out! MySQL is not running.
 Additional information may be put into the testing output on separate
 lines. Diagnostic lines should begin with a #, which the harness must
 ignore, at least as far as analyzing the test results. The harness is free,
-however, to display the diagnostics.  TAP13's YAML blocks are intended to
-replace diagnostics for most purposes but TAP13 consumers should maintain
+however, to display the diagnostics.  TAP14's YAML blocks are intended to
+replace diagnostics for most purposes but TAP14 consumers should maintain
 backwards compatibility by supporting them.
 
 ### Anything else
@@ -304,7 +309,7 @@ provides handy feedback as to what the test is about to do. All six tests
 pass.
 
 ```
-TAP version 13
+TAP version 14
 1..6
 #
 # Create a new Board and Tile, then place
@@ -329,7 +334,7 @@ failure gives additional information about the failure that may be
 displayed by the harness.
 
 ```
-TAP version 13
+TAP version 14
 ok 1 - retrieving servers from the database
 # need to ping 6 servers
 ok 2 - pinged diamond
@@ -357,7 +362,7 @@ be established. The program decided that continuing was pointless and
 exited.
 
 ```
-TAP version 13
+TAP version 14
 1..573
 not ok 1 - database handle
 Bail out! Couldn't connect to database.
@@ -370,7 +375,7 @@ decided to not run tests 2 thru 5 at all. To properly report this, the
 tests are marked as being skipped.
 
 ```
-TAP version 13
+TAP version 14
 1..5
 ok 1 - approved operating system
 # $^0 is solaris
@@ -385,7 +390,7 @@ ok 5 - # SKIP no /sys directory
 This listing shows that the entire listing is a skip. No tests were run.
 
 ```
-TAP version 13
+TAP version 14
 1..0 # skip because English-to-French translator isn't installed
 ```
 
@@ -397,7 +402,7 @@ later, they are considered successes. Thus, a harness should report this
 entire listing as a success.
 
 ```
-TAP version 13
+TAP version 14
 1..4
 ok 1 - Creating test program
 ok 2 - Test program runs, no error
@@ -412,7 +417,7 @@ provided. The test also reports the state of a ficticious board game as a
 YAML block. Finally, the test count is reported at the end.
 
 ```
-TAP version 13
+TAP version 14
 ok - created Board
 ok
 ok
