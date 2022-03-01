@@ -312,6 +312,12 @@ Directives are special notes that follow a # on the Test Point line. Only
 two are currently defined: `TODO` and `SKIP`. These two keywords are not
 case-sensitive.
 
+Harnesses _may_ support additional platform-specific directives.  Future
+versions of this specification _may_ codify additional directives with
+defined semantics.
+
+Unrecognized directives _must_ be ignored, and treated as comments.
+
 ##### TODO tests
 
 If the directive starts with `# TODO`, the test is counted as a todo test,
