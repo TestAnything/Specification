@@ -15,32 +15,36 @@ harness for Perl but now has implementations in C/C++, Python, PHP, Perl,
 JavaScript, and probably others by the time you read this.  This document
 describes version 14 of TAP. Go to TAP to read about previous versions.
 
-## THE TAP14 FORMAT
+The key words _must_, _must not_, _required_, _shall_, _shall not_,
+_should_, _should not_, _recommended_, _may_, and _optional_ in this
+document are to be interpreted as described in [RFC
+2119](https://datatracker.ietf.org/doc/html/rfc2119).
 
-TAP14's general format is:
+## TAP14 FORMAT
 
-```tap
-TAP version 14
-1..N
-ok 1 Description # Directive
-# Diagnostic
-  ---
-  message: 'Failure message'
-  severity: fail
-  data:
-    got:
-      - 1
-      - 3
-      - 2
-    expect:
-      - 1
-      - 2
-      - 3
-  ...
-ok 47 Description
-ok 48 Description
-more tests....
+TAP14's general grammar is:
+
+```ebnf
+TAPDocument := Version Plan Body | Version Body Plan
+Version     := "TAP version 14\n"
+Plan        := "1.." (Number) (" # " Reason)? "\n"
+Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty)*
+TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? "\n" (YamlBlock)?
+YamlBlock   := "  ---\n" (YamlLine)* "  ...\n"
+YamlLine    := "  " (Yaml)* "\n"
+BailOut     := "Bail out!" (" " Reason)?
+Pragma      := "pragma " [+-] PragmaKey "\n"
+PragmaKey   := ([a-zA-Z0-9_-])+
+Comment     := (" ")* "#" [^\n]* "\n"
+Empty       := [\s\t]* "\n"
+Anything    := [^\n]+ "\n"
 ```
+
+The Version is the line `TAP version 14`.
+
+The Body is a collection of lines representing a test set.
+
+The Plan reports on the number of tests included in the Body.
 
 For example, a test file's output might look like:
 
@@ -67,199 +71,364 @@ not ok 4 - Summarized correctly # TODO Not written yet
 ## HARNESS BEHAVIOR
 
 In this document, the "harness" is any program analyzing TAP output.
-Typically this will be Perl's runtests program, or the underlying
-TAP::Harness-runtests> method.  A harness must only read TAP output from
-standard output and not from standard error. Lines written to standard
-output matching `/^(not )?ok\b/` must be interpreted as test lines. After a
-test line a block of lines starting with '---' and ending with '...' will
-be interpreted as an inline YAML document providing extended diagnostic
-information about the preceding test. All other lines must not be
-considered test output.
 
-## TESTS LINES AND THE PLAN
+Typically this will be a test framework's runner program, but may also be a
+programmatic parser, parent test object, or test result reporter.
 
-### The version
+In a typical TAP implementation, tests are programs that ouput TAP data
+according to this specification.  The "test harness" reads TAP output from
+these programs, and handles it in some way.
 
-To indicate that this is TAP14 the first line must be
+A harness that is collecting output from test programs _should_ read and
+interpret TAP from the process's standard output, not standard error.
+(Handling of test standard error is implementation-specific.)
+
+A Harness _should_ normalize line endings by replacing any instances of
+`\r\n` or `\r` in the TAP document with `\n`.
+
+A harness _should_ treat a test program as a failed test if:
+
+* The TAP output lines indicate test failure, or
+* The TAP output of the process is invalid in a way that is not
+  recoverable, or
+* The exit code of the test program is not 0 (including test programs
+  killed by a fatal Unix signal).
+
+If one or more test programs are considered failures, then a TAP Harness
+_should_ indicate failure to the user in whatever means are appropriate.
+For example, a command-line test runner might exit with a non-zero status
+code, while a web-based continuous integration system might put a red
+"FAILED" notice in the html output.
+
+Note that some of the above guidance may not apply if the Harness is
+interpreting TAP from a different sort of text stream, or for a purpose
+other than actually running tests.  For example, a Harness may be used to
+analyze the recorded output of past test runs and provide data about them.
+
+## TAP DOCUMENT STRUCTURE
+
+### Version
+
+To indicate that this is TAP14 the first line _must_ be
 
 ```tap
 TAP version 14
 ```
 
-Parsers _may_ interpret ostensibly
+Harnesses _may_ interpret ostensibly
 [TAP13](https://testanything.org/tap-version-13-specification.html) streams
 as TAP14, as this specification is compatible with observed behavior of
-existing TAP13 consumers and producers.
+existing TAP13 consumers and producers.  That is, they _may_ treat this as
+a valid Version line while parsing TAP14:
 
-### The plan
+```tap
+TAP version 13
+```
 
-The plan tells how many tests will be run, or how many tests have run. It's
-a check that the test file hasn't stopped prematurely. It must appear once,
-whether at the beginning or end of the output.  The plan is usually the
-second line of TAP output right after the version line, and it specifies
-how many test points are to follow. For example,
+Harnesses _may_ treat any TAP stream lacking a version as a failed test.
+
+### Plan
+
+The Plan tells how many tests will be run, or how many tests have run. It's
+a check that the test file hasn't stopped prematurely.
+
+The Plan _must_ appear exactly once in the file, either before any Test
+Point lines, or after all Test Point lines.  That is, if it appears after
+any Test Point lines, there _must not_ be any Test Point lines following.
+
+A Harness _must_ treat a TAP stream lacking a plan as a failed test.
+
+The Plan specifies how many test points are to follow. For example,
 
 ```tap
 1..10
 ```
 
-means you plan on running 10 tests. This is a safeguard in case your test
-file dies silently in the middle of its run. The plan is optional but if
-there is a plan before the test points it must be the first non-diagnostic
-line output by the test file.  In certain instances a test file may not
-know how many test points it will ultimately be running. In this case the
-plan can be the last non-diagnostic line in the output.  The plan cannot
-appear in the middle of the output, nor can it appear more than once.
+means that either 10 test points will follow, or 10 test points are
+believed to have been present in the stream already.
 
-### The test line
+This is a safeguard in case the test file dies silently in the middle of
+its run.
 
-The core of TAP is the test line. A test file prints one test line test
-point executed. There must be at least one test line in TAP output. Each
-test line comprises the following elements:
+The Plan lists the range of test point IDs that are expected in the TAP
+stream.  It can also optionally contain a comment prefixed by a `#`.
 
--    ok or not ok
+It's basic grammar is:
 
-This tells whether the test point passed or failed. It must be at the
-beginning of the line. `/^not ok/` indicates a failed test point. `/^ok/`
-is a successful test point. This is the only mandatory part of the line.
-Note that unlike the Directives below, ok and not ok are case-sensitive.
+```ebnf
+Plan := Number ".." Number ("" | "# " Comment)
+```
 
--    Test number
-
-TAP expects the ok or not ok to be followed by a test point number. If
-there is no number the harness must maintain its own counter until the
-script supplies test numbers again. So the following test output
+A plan line of `1..0` indicates that the test set was completely skipped;
+no tests are expected to follow, and none should have come before.
+Harnesses _should_ report on `1..0` test runs similarly to their handling
+of `SKIP` Test Points, treating any comment in the Plan as the reason for
+skipping.
 
 ```tap
-1..6
-not ok
-ok
-not ok
-ok
-ok
+1..0 # WWW::Mechanize not installed
 ```
 
-has five tests. The sixth is missing. Test::Harness will generate
+**Note**: Plan lines starting with a number other than `1` are deprecated,
+and _may_ be treated as invalid in a future version of this specification.
+At the present time (March 2022), most popular TAP generating utilities
+always start Plan lines at 1.
 
-```
-FAILED tests 1, 3, 6
-Failed 3/6 tests, 50.00% okay
-```
+### Test Points
 
--    Description Any text after the test number but before a # is the
-     description of the test point.
+The core of TAP is the "Test Point". A test file prints one test point
+executed. There must be at least one test point in TAP output. Each test
+point comprises the following elements:
 
-```tap
-ok 42 this is the description of the test
-```
+- Test Status: `ok` or `not ok`
 
-Descriptions should not begin with a digit so that they are not confused
-with the test point number.  The harness may do whatever it wants with the
-description.
+    This tells whether the test point passed or failed. It must be at the
+    beginning of the line. `/^not ok/` indicates a failed test point.
+    `/^ok/` is a successful test point. This is the only mandatory part of
+    the line.
 
--    Directive The test point may include a directive, following a hash on
-     the test line. There are currently two directives allowed: TODO and
-     SKIP. These are discussed below.
+    Note that unlike the Directives below, `ok` and `not ok` are
+    case-sensitive.
+
+- Test Point ID
+
+    TAP expects the ok or not ok to be followed by an integer Test Point
+    ID. If there is no number, the harness _must_ maintain its own counter
+    until the script supplies test numbers again.
+
+    For example, the following test output is acceptable:
+
+    ```tap
+    1..5
+    not ok
+    ok
+    not ok
+    ok
+    ok
+    ```
+
+    and is equivalent to:
+
+    ```tap
+    1..5
+    not ok 1
+    ok 2
+    not ok 3
+    ok 4
+    ok 5
+    ```
+
+    This test output is _not_ valid TAP:
+
+    ```tap
+    1..6
+    not ok
+    ok
+    not ok
+    ok
+    ok
+    ```
+
+    has five tests. The sixth is missing. Test::Harness will generate
+
+    ```
+    FAILED tests 1, 3, 6
+    Failed 3/6 tests, 50.00% okay
+    ```
+
+    Test Points _may_ be output in any order, but any Test Point ID
+    provided _must_ be within the range described by the Plan.
+
+    This is valid TAP:
+
+    ```tap
+    TAP version 14
+    1..3
+    ok 2
+    ok 3
+    ok 1
+    ```
+
+    This is not valid TAP:
+
+    ```tap
+    TAP version 14
+    1..3
+    ok 2
+    ok 4
+    ok 1
+    ```
+
+- Description
+
+    Any text after the test number but before a `#` is the description of
+    the test point.
+
+    ```tap
+    ok 42 - this is the description of the test
+    ```
+
+    Descriptions _should_ be separated from the Test Point Status and Test
+    Point ID by the string `" - "`, in order to prevent confusing a numeric
+    description with a Test Point ID.  However, the `" - "` separator is
+    _optional_.
+
+    Harnesses _should not_ consider a leading `" - "` to be a part of the
+    description reported to a user.
+
+- Directive
+
+    The test point may include a directive, following a hash on the test
+    line.  There are currently two directives allowed: `TODO` and `SKIP`.
+    These are discussed below.
 
 To summarize:
 
--    ok/not ok (required)
--    Test number (recommended)
--    Description (recommended)
--    Directive (only when necessary)
+- Test Status: `ok`/`not ok` (required)
+- Test number (recommended)
+- Description (recommended, prefixed by `" - "`)
+- Directive (only when necessary)
 
-### YAML blocks
 
-If the test line is immediately followed by an indented block beginning
-with `/^\s+---/` and ending with `/^\s+.../` that block will be interpreted
-as an inline YAML document. The YAML encodes a data structure that provides
-more detailed information about the preceding test.  The YAML document is
-indented to make it visually distinct from the surrounding test results and
-to make it easier for the parser to recover if the trailing '...'
-terminator is missing.  For example:
+#### DIRECTIVES
 
-```tap
-not ok 3 Resolve address
- ---
- message: "Failed with error 'hostname peebles.example.com not found'"
- severity: fail
- data:
-   got:
-     hostname: 'peebles.example.com'
-     address: ~
-   expected:
-     hostname: 'peebles.example.com'
-     address: '85.193.201.85'
- ...
-```
-
-For a harness written in Perl the corresponding data structure would look
-like this:
-
-```perl
-$diagnostic = {
-    'message'  => "Failed with error 'hostname peebles.example.com not found'",
-    'severity' => 'fail',
-    'data' => {
-        'got' => {
-            'hostname' => 'peebles.example.com',
-            'address'  => undef,
-        },
-        'expected' => {
-            'hostname' => 'peebles.example.com',
-            'address'  => '85.193.201.85',
-        }
-    },
-};
-```
-
-Currently (2007/03/17) the format of the data structure represented by a
-YAML block has not been standardized. It is likely that whatever schema
-emerges will be able to capture the kind of forensic information about a
-test's execution seen in the example above.
-
-## DIRECTIVES
-
-Directives are special notes that follow a # on the test line. Only two are
-currently defined: TODO and SKIP. Note that these two keywords are not
+Directives are special notes that follow a # on the Test Point line. Only
+two are currently defined: `TODO` and `SKIP`. These two keywords are not
 case-sensitive.
 
-### TODO tests
+##### TODO tests
 
-If the directive starts with # TODO, the test is counted as a todo test,
-and the text after TODO is the explanation.
+If the directive starts with `# TODO`, the test is counted as a todo test,
+and the text after `TODO` is the explanation.
 
 ```tap
 not ok 14 # TODO bend space and time
 ```
 
-Note that if the TODO has an explanation it must be separated from TODO by
-a space.  These tests represent a feature to be implemented or a bug to be
-fixed and act as something of an executable "things to do" list. They are
-not expected to succeed. Should a todo test point begin succeeding, the
-harness should report it as a bonus. This indicates that whatever you were
-supposed to do has been done and you should promote this to a normal test
-point.
+If the TODO has an explanation, it must be separated from TODO by a space.
+These tests represent a feature to be implemented or a bug to be fixed and
+act as something of an executable "things to do" list. They are not
+expected to succeed.
 
-### Skipping tests
+Should a todo test point begin succeeding, the harness _may_ report it in
+some way that indicates that whatever was supposed to be done has been, and
+it should be promoted to a normal Test Point.
 
-If the directive starts with # SKIP, the test is counted as having been
-skipped. If the whole test file succeeds, the count of skipped tests is
-included in the generated output. The harness should report the text after
-# SKIP\S*\s+ as a reason for skipping.
+Harnesses _must not_ treat failing `TODO` test points as a test failure.
 
-```tap
-ok 23 # skip Insufficient flogiston pressure.
-```
+Harneses _should_ report `TODO` test points found as a list of items
+needing work, if that is appropriate for their use case.
 
-Similarly, one can include an explanation in a plan line, emitted if the
-test file is skipped completely:
+##### SKIP tests
+
+If the directive starts with `# SKIP`, the test is counted as a todo test,
+and the text after `SKIP` is the explanation.
 
 ```tap
-1..0 # Skipped: WWW::Mechanize not installed
+ok 14 - mung the gums # SKIP leave gums unmunged for now
 ```
 
-## OTHER LINES
+If the SKIP has an explanation, it must be separated from SKIP by a space.
+These tests indicate that a test was not run, or if it was, that its
+success or failure is being temporarily ignored.
+
+Harnesses _must not_ treat failing `SKIP` test points as a test failure.
+
+Harnesses _should_ report `SKIP` test points found as a list of items that
+were not tested, if that is appropriate for their use case.
+
+### YAML Diagnostics
+
+If a Test Point is followed by a 2-space indented block beginning with
+the line `  ---` and ending with the line `  ...`, separated from the Test
+Point only by comments or whitespace, then the block of lines between these
+markers will be interpreted as an inline YAML Diagnostic document.
+
+The YAML encodes a data structure that provides information about the
+preceding Test Point.
+
+For example:
+
+```tap
+not ok 3 - Resolve address
+  ---
+  message: "Failed with error 'hostname peebles.example.com not found'"
+  severity: fail
+  found:
+    hostname: 'peebles.example.com'
+    address: ~
+  wanted:
+    hostname: 'peebles.example.com'
+    address: '85.193.201.85'
+  at:
+    file: test/dns-resolve.c
+    line: 142
+  ...
+```
+
+Currently (March 2022) the data structure represented by a YAML Diagnostic
+block has not been standardized.  TAP14 Harnesses _must_ allow any data
+structures supported by their YAML parser implementation.
+
+A future version of this specification _may_ provide guidance regarding
+YAML Diagnostic fields in common usage.
+
+### Comments
+
+Lines outside of a YAML diagnostic block which begin with a `#` character
+preceeded by zero or more characters of whitespace, are comments.
+
+A Harness _may_ present these to the user, ignore them, or assign meaning
+to certain comments.
+
+A Harness _must not_ treat a test as a failure based on the presence of
+comment lines.  That is, a Harness _must_ ignore any unrecognized comment
+lines.
+
+### Pragmas
+
+A Pragma provides information to a Harness to control its behavior or
+configure it in some way.  Each Pragma line represents a single boolean
+switch which can be set to `true` or `false`.
+
+The structure of a Pragma line is:
+
+- `"pragma "`
+- `+` (true) or `-` (false)
+- key: The name of the field being enabled or disabled.
+
+For example:
+
+```tap
+TAP version 13
+# tell the parser to bail out on any failures from now on
+pragma +bail
+
+# tell the parser to execute in strict mode, treating any invalid TAP
+# as a test failure.
+pragma +strict
+
+# turn off a feature we don't want to be active right now
+pragma -bail
+```
+
+The meaning and availability of keys that may be set by Pragmas are
+implementation-specific.
+
+Harnesses _must not_ treat unrecognized Pragma keys as a test failure.
+However, they _may_ warn if a Pragma is unrecognized, or fail if the
+named flag cannot be set for some reason.
+
+### Blank Lines
+
+For the purposes of this specification, a "blank" line is any line
+consisting exclusively of zero or more whitespace characters.
+
+Blank lines within YAML blocks _must_ be preserved as part of the YAML
+document, because line breaks have semantic meaning in YAML documents.  For
+example, multiline folded scalar values use `\n\n` to denote line breaks.
+
+Blank lines outside of YAML blocks _must_ be ignored by the Harness.
 
 ### Bail out!
 
@@ -278,22 +447,16 @@ interpreter as the reason why testing must be stopped, as in
 Bail out! MySQL is not running.
 ```
 
-### Diagnostics
+The words "Bail out!" are case insensitive.
 
-Additional information may be put into the testing output on separate
-lines. Diagnostic lines should begin with a #, which the harness must
-ignore, at least as far as analyzing the test results. The harness is free,
-however, to display the diagnostics.  TAP14's YAML blocks are intended to
-replace diagnostics for most purposes but TAP14 consumers should maintain
-backwards compatibility by supporting them.
+### Anything Else
 
-### Anything else
+Any line that is not a valid version, plan, test point, yaml diagnostic,
+pragma, a blank line, or a bail out is invalid TAP.
 
-Any output that is not a version, a plan, a test line, a YAML block, a
-diagnostic or a bail out is incorrect. How a harness handles the incorrect
-line is undefined.  Test::Harness silently ignores incorrect lines, but
-will become more stringent in the future.  TAP::Harness reports TAP syntax
-errors at the end of a test run.
+A Harness _may_ silently ignore invalid TAP lines, pass them through to its
+own stderr or stdout, or report them in some other fashion.  However, it
+_should not_ treat invalid TAP lines as a test failure by default.
 
 ## EXAMPLES
 
@@ -472,7 +635,3 @@ Copyright 2003-2007 by Michael G Schwern <schwern@pobox.com>, Andy Lester
 free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.  See
 [http://www.perl.com/perl/misc/artistic.html](http://www.perl.com/perl/misc/artistic.html).
-
-## TODO
-
-Define the exit code of the process.
