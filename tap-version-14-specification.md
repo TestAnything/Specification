@@ -19,7 +19,7 @@ describes version 14 of TAP. Go to TAP to read about previous versions.
 
 TAP14's general format is:
 
-```
+```tap
 TAP version 14
 1..N
 ok 1 Description # Directive
@@ -44,7 +44,7 @@ more tests....
 
 For example, a test file's output might look like:
 
-```
+```tap
 TAP version 14
 1..4
 ok 1 - Input file opened
@@ -82,7 +82,7 @@ considered test output.
 
 To indicate that this is TAP14 the first line must be
 
-```
+```tap
 TAP version 14
 ```
 
@@ -99,7 +99,7 @@ whether at the beginning or end of the output.  The plan is usually the
 second line of TAP output right after the version line, and it specifies
 how many test points are to follow. For example,
 
-```
+```tap
 1..10
 ```
 
@@ -130,7 +130,7 @@ TAP expects the ok or not ok to be followed by a test point number. If
 there is no number the harness must maintain its own counter until the
 script supplies test numbers again. So the following test output
 
-```
+```tap
 1..6
 not ok
 ok
@@ -149,7 +149,7 @@ Failed 3/6 tests, 50.00% okay
 -    Description Any text after the test number but before a # is the
      description of the test point.
 
-```
+```tap
 ok 42 this is the description of the test
 ```
 
@@ -178,7 +178,7 @@ indented to make it visually distinct from the surrounding test results and
 to make it easier for the parser to recover if the trailing '...'
 terminator is missing.  For example:
 
-```
+```tap
 not ok 3 Resolve address
  ---
  message: "Failed with error 'hostname peebles.example.com not found'"
@@ -196,7 +196,7 @@ not ok 3 Resolve address
 For a harness written in Perl the corresponding data structure would look
 like this:
 
-```
+```perl
 $diagnostic = {
     'message'  => "Failed with error 'hostname peebles.example.com not found'",
     'severity' => 'fail',
@@ -229,7 +229,7 @@ case-sensitive.
 If the directive starts with # TODO, the test is counted as a todo test,
 and the text after TODO is the explanation.
 
-```
+```tap
 not ok 14 # TODO bend space and time
 ```
 
@@ -248,14 +248,14 @@ skipped. If the whole test file succeeds, the count of skipped tests is
 included in the generated output. The harness should report the text after
 # SKIP\S*\s+ as a reason for skipping.
 
-```
+```tap
 ok 23 # skip Insufficient flogiston pressure.
 ```
 
 Similarly, one can include an explanation in a plan line, emitted if the
 test file is skipped completely:
 
-```
+```tap
 1..0 # Skipped: WWW::Mechanize not installed
 ```
 
@@ -267,14 +267,14 @@ As an emergency measure a test script can decide that further tests are
 useless (e.g. missing dependencies) and testing should stop immediately. In
 that case the test script prints the magic words
 
-```
+```tap
 Bail out!
 ```
 
 to standard output. Any message after these words must be displayed by the
 interpreter as the reason why testing must be stopped, as in
 
-```
+```tap
 Bail out! MySQL is not running.
 ```
 
@@ -308,7 +308,7 @@ The following TAP listing declares that six tests follow as well as
 provides handy feedback as to what the test is about to do. All six tests
 pass.
 
-```
+```tap
 TAP version 14
 1..6
 #
@@ -333,7 +333,7 @@ have run. Also, two of the tests fail. The YAML block following each
 failure gives additional information about the failure that may be
 displayed by the harness.
 
-```
+```tap
 TAP version 14
 ok 1 - retrieving servers from the database
 # need to ping 6 servers
@@ -361,7 +361,7 @@ first test fails, reportedly because a connection to the database could not
 be established. The program decided that continuing was pointless and
 exited.
 
-```
+```tap
 TAP version 14
 1..573
 not ok 1 - database handle
@@ -374,7 +374,7 @@ The following listing plans on running 5 tests. However, our program
 decided to not run tests 2 thru 5 at all. To properly report this, the
 tests are marked as being skipped.
 
-```
+```tap
 TAP version 14
 1..5
 ok 1 - approved operating system
@@ -389,7 +389,7 @@ ok 5 - # SKIP no /sys directory
 
 This listing shows that the entire listing is a skip. No tests were run.
 
-```
+```tap
 TAP version 14
 1..0 # skip because English-to-French translator isn't installed
 ```
@@ -401,7 +401,7 @@ tests failed. However, because the failing tests are marked as things to do
 later, they are considered successes. Thus, a harness should report this
 entire listing as a success.
 
-```
+```tap
 TAP version 14
 1..4
 ok 1 - Creating test program
@@ -416,7 +416,7 @@ This listing shows an alternate output where the test numbers aren't
 provided. The test also reports the state of a ficticious board game as a
 YAML block. Finally, the test count is reported at the end.
 
-```
+```tap
 TAP version 14
 ok - created Board
 ok
