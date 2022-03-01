@@ -3,6 +3,22 @@ layout: default
 title: TAP 14 specification
 ---
 
+# STATUS: DRAFT
+
+This is a draft document pending further editing and ratification by no
+fewer than 3 widely used TAP implementations in 3 different language
+communities.
+
+This section will likely be removed prior to ratification.
+
+## GOALS OF THIS SPECIFICATION
+
+* Document the observed behavior of widely used TAP implementations.
+* Add no features that are not already in wide usage across multiple
+  implementations.
+* Explicitly allow what is already allowed, deny what is already denied.
+* Provide updated and clearer guidance for new TAP implementations.
+
 # NAME
 
 TAP14 - The Test Anything Protocol v14
@@ -27,7 +43,7 @@ TAP14's general grammar is:
 ```ebnf
 TAPDocument := Version Plan Body | Version Body Plan
 Version     := "TAP version 14\n"
-Plan        := "1.." (Number) (" # " Reason)? "\n"
+Plan        := (Number) ".." (Number) (" # " Reason)? "\n"
 Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty)*
 TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? "\n" (YamlBlock)?
 YamlBlock   := "  ---\n" (YamlLine)* "  ...\n"
