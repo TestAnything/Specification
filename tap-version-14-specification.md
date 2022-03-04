@@ -299,8 +299,16 @@ point comprises the following elements:
 
     Descriptions _should_ be separated from the Test Point Status and Test
     Point ID by the string `" - "`, in order to prevent confusing a numeric
-    description with a Test Point ID.  However, the `" - "` separator is
-    _optional_.
+    description with a Test Point ID.  Harnesses _must_ treat Test Points
+    identically whether the description starts with `" - "` or not.
+
+    For example, these two test points _must_ be treated identically by a
+    Harness:
+
+    ```tap
+    ok 1 this is fine
+    ok 1 - this is fine
+    ```
 
     Harnesses _should not_ consider a leading `" - "` to be a part of the
     description reported to a user.
