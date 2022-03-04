@@ -329,7 +329,7 @@ To summarize:
 
 #### DIRECTIVES
 
-Directives are special notes that follow a # on the Test Point line. Only
+Directives are special notes that follow a `#` on the Test Point line. Only
 two are currently defined: `TODO` and `SKIP`. These two keywords are not
 case-sensitive.
 
