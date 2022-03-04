@@ -11,7 +11,7 @@ communities.
 
 This section will likely be removed prior to ratification.
 
-## GOALS OF THIS SPECIFICATION
+## Goals of This Specification
 
 * Document the observed behavior of widely used TAP implementations.
 * Add no features that are not already in wide usage across multiple
@@ -19,11 +19,11 @@ This section will likely be removed prior to ratification.
 * Explicitly allow what is already allowed, deny what is already denied.
 * Provide updated and clearer guidance for new TAP implementations.
 
-# NAME
+# Name
 
 TAP14 - The Test Anything Protocol v14
 
-## SYNOPSIS
+## Synopsis
 
 TAP, the Test Anything Protocol, is a simple text-based interface between
 testing modules a test harness. TAP started life as part of the test
@@ -36,7 +36,7 @@ _should_, _should not_, _recommended_, _may_, and _optional_ in this
 document are to be interpreted as described in [RFC
 2119](https://datatracker.ietf.org/doc/html/rfc2119).
 
-## TAP14 FORMAT
+## TAP14 Format
 
 TAP14's general grammar is:
 
@@ -45,10 +45,10 @@ TAPDocument := Version Plan Body | Version Body Plan
 Version     := "TAP version 14\n"
 Plan        := "1.." (Number) (" # " Reason)? "\n"
 Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty)*
-TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? (" " Directive)? "\n" (YamlBlock)?
+TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? (" " Directive)? "\n" (YAMLBlock)?
 Directive   := "# " ("todo" | "skip") (" " Reason)?
-YamlBlock   := "  ---\n" (YamlLine)* "  ...\n"
-YamlLine    := "  " (Yaml)* "\n"
+YAMLBlock   := "  ---\n" (YAMLLine)* "  ...\n"
+YAMLLine    := "  " (YAML)* "\n"
 BailOut     := "Bail out!" (" " Reason)? "\n"
 Reason      := [^\n]+
 Pragma      := "pragma " [+-] PragmaKey "\n"
@@ -89,7 +89,7 @@ not ok 4 - Summarized correctly # TODO Not written yet
   ...
 ```
 
-## HARNESS BEHAVIOR
+## Harness Behavior
 
 In this document, the "harness" is any program analyzing TAP output.
 
@@ -126,7 +126,7 @@ interpreting TAP from a different sort of text stream, or for a purpose
 other than actually running tests.  For example, a Harness may be used to
 analyze the recorded output of past test runs and provide data about them.
 
-## TAP DOCUMENT STRUCTURE
+## Document Structure
 
 ### Version
 
@@ -341,7 +341,7 @@ defined semantics.
 
 Unrecognized directives _must_ be ignored, and treated as comments.
 
-##### TODO tests
+##### `TODO` tests
 
 If the directive starts with `# TODO`, the test is counted as a todo test,
 and the text after `TODO` is the explanation.
@@ -364,7 +364,7 @@ Harnesses _must not_ treat failing `TODO` test points as a test failure.
 Harneses _should_ report `TODO` test points found as a list of items
 needing work, if that is appropriate for their use case.
 
-##### SKIP tests
+##### `SKIP` tests
 
 If the directive starts with `# SKIP`, the test is counted as a skipped
 test, and the text after `SKIP` is the explanation.
@@ -501,7 +501,7 @@ The words "Bail out!" are case insensitive.
 
 ### Anything Else
 
-Any line that is not a valid version, plan, test point, yaml diagnostic,
+Any line that is not a valid version, plan, test point, YAML diagnostic,
 pragma, a blank line, or a bail out is invalid TAP.
 
 A Harness _may_ silently ignore invalid TAP lines, pass them through to its
@@ -607,7 +607,7 @@ TAP version 14
 1..0 # skip because English-to-French translator isn't installed
 ```
 
-## Got spare tuits?
+## Procrastination Considered `ok`
 
 The following example reports that four tests are run and the last two
 tests failed. However, because the failing tests are marked as things to do
