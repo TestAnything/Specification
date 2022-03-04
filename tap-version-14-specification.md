@@ -646,27 +646,38 @@ ok - board has 7 tiles + starter tile
 ## BUGS
 
 Feature requests and bug reports should be [raised on
-GitHub.](https://github.com/TestAnything/testanything.github.io/issues/new)
+GitHub.](https://github.com/TestAnything/Specification/issues/new)
 
 ## AUTHORS
 
-The original TAP documentation (of which this is a hacked about version)
-was written by Andy Lester, based on the original Test::Harness
-documentation by Michael Schwern.  This version was written by Andy
-Armstrong.
+The TAP 14 Specification is authored by [Isaac Z.
+Schlueter](https://github.com/isaacs), as a result of much discussion on
+the [TestAnything
+Specification](https://github.com/TestAnything/Specification) project, with
+considerable input, encouragement, feedback, and suggestions from:
+
+* [Matt Layman](https://github.com/mblayman)
+* [Leon Timmermans](https://github.com/Leont)
+* [Bruno P. Kinoshita](https://github.com/kinow)
+* [Chad Granum](https://github.com/exodist)
 
 ## ACKNOWLEDGEMENTS
 
-Thanks to Pete Krawczyk, Paul Johnson, Ian Langworth and Nik Clayton for
-help and contributions on this document.  The basis for the TAP format was
-created by Larry Wall in the original test script for Perl 1. Tim Bunce and
-Andreas Koenig developed it further with their modifications to
-Test::Harness.
+The TAP 13 Specification was written by Andy Armstrong with help and
+contributions from Pete Krawczyk, Paul Johnson, Ian Langworth and Nik
+Clayton, based on the original TAP documentation by Andy Lester, based on
+the original Test::Harness documentation by Michael Schwern.
+
+The basis for the TAP format was created by Larry Wall in the original test
+script for Perl 1. Tim Bunce and Andreas Koenig developed it further with
+their modifications to Test::Harness.
 
 ## COPYRIGHT
 
+Copyright 2015-2022 by Isaac Z. Schlueter <i@izs.me> and Contributors.
+
 Copyright 2003-2007 by Michael G Schwern <schwern@pobox.com>, Andy Lester
-<andy@petdance.com>, Andy Armstrong <andy@hexten.net>.  This program is
-free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.  See
-[http://www.perl.com/perl/misc/artistic.html](http://www.perl.com/perl/misc/artistic.html).
+<andy@petdance.com>, Andy Armstrong <andy@hexten.net>.
+
+This specification is released under the [Artistic License
+2.0](https://opensource.org/licenses/Artistic-2.0)
