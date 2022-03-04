@@ -366,8 +366,8 @@ needing work, if that is appropriate for their use case.
 
 ##### SKIP tests
 
-If the directive starts with `# SKIP`, the test is counted as a todo test,
-and the text after `SKIP` is the explanation.
+If the directive starts with `# SKIP`, the test is counted as a skipped
+test, and the text after `SKIP` is the explanation.
 
 ```tap
 ok 14 - mung the gums # SKIP leave gums unmunged for now
