@@ -426,7 +426,8 @@ The structure of a Pragma line is:
 
 - `"pragma "`
 - `+` (true) or `-` (false)
-- key: The name of the field being enabled or disabled.
+- key: The name of the field being enabled or disabled.  ASCII alphanumeric
+  characters, `_`, and `-` are allowed.
 
 For example:
 
@@ -436,7 +437,7 @@ TAP version 13
 pragma +bail
 
 # tell the parser to execute in strict mode, treating any invalid TAP
-# as a test failure.
+# line as a test failure.
 pragma +strict
 
 # turn off a feature we don't want to be active right now
@@ -446,9 +447,12 @@ pragma -bail
 The meaning and availability of keys that may be set by Pragmas are
 implementation-specific.
 
-Harnesses _must not_ treat unrecognized Pragma keys as a test failure.
-However, they _may_ warn if a Pragma is unrecognized, or fail if the
-named flag cannot be set for some reason.
+Harnesses _may_ choose to respond to Pragma lines, or ignore them.
+
+Harnesses _must not_ treat unrecognized Pragma keys as a test failure, even
+if they would normally treat invalid TAP as a test failure.  Harnesses
+_may_ warn if a Pragma is unrecognized, or fail if the named pragma is
+recognized, but cannot be set for some reason.
 
 ### Blank Lines
 
