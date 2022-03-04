@@ -243,9 +243,10 @@ point comprises the following elements:
     ok 5
     ```
 
-    This test output is _not_ valid TAP:
+    This test output is _not_ a successful test run:
 
     ```tap
+    TAP version 13
     1..6
     not ok
     ok
@@ -254,7 +255,9 @@ point comprises the following elements:
     ok
     ```
 
-    has five tests. The sixth is missing. Test::Harness will generate
+    Five tests are shown, but the plan indicated that there would be 6.
+    Furthermore, tests 1 and 3 are explicitly failing.  Perl's
+    `Test::Harness` will report:
 
     ```
     FAILED tests 1, 3, 6
@@ -264,7 +267,7 @@ point comprises the following elements:
     Test Points _may_ be output in any order, but any Test Point ID
     provided _must_ be within the range described by the Plan.
 
-    This is valid TAP:
+    This is valid TAP and a successful test run:
 
     ```tap
     TAP version 14
@@ -274,7 +277,8 @@ point comprises the following elements:
     ok 1
     ```
 
-    This is not valid TAP:
+    This is not a successful test run. Even though there are 3 Test Points,
+    the Test Point ID 4 is outside the stated Plan range.
 
     ```tap
     TAP version 14
