@@ -168,16 +168,16 @@ The Plan specifies how many test points are to follow. For example,
 means that either 10 test points will follow, or 10 test points are
 believed to have been present in the stream already.
 
-This is a safeguard in case the test file dies silently in the middle of
-its run.
+This is a safeguard against test data being truncated or damaged in some
+other way, rendering the output unreliable.
 
 The Plan lists the range of test point IDs that are expected in the TAP
-stream.  It can also optionally contain a comment prefixed by a `#`.
+stream.  It can also optionally contain a comment/reason prefixed by a `#`.
 
 It's basic grammar is:
 
 ```ebnf
-Plan := Number ".." Number ("" | "# " Comment)
+Plan := "1.." Number ("" | "# " Reason)
 ```
 
 A plan line of `1..0` indicates that the test set was completely skipped;
@@ -190,10 +190,14 @@ skipping.
 1..0 # WWW::Mechanize not installed
 ```
 
-**Note**: Plan lines starting with a number other than `1` are deprecated,
-and _may_ be treated as invalid in a future version of this specification.
-At the present time (March 2022), most popular TAP generating utilities
-always start Plan lines at 1.
+Previous versions of TAP allowed plans to specify any two numbers, for
+example, `5..8` to indicate that test points with IDs between 5 and 8 would
+be run.  However, this is not widely supported.
+
+Thus, TAP14 producers _must_ output a Plan starting with `1`.  TAP14
+Harnesses _may_ allow plans starting with numbers other than 1, but if so,
+they _must_ treat any Test Point IDs outside the plan range as a test
+failure.
 
 ### Test Points
 
