@@ -128,6 +128,12 @@ analyze the recorded output of past test runs and provide data about them.
 
 ## Document Structure
 
+TAP14 producers _must_ encode TAP data using the UTF-8 encoding.
+
+Harnesses _should_ interpret all TAP streams using UTF-8.  Harnesses _may_
+provide a mechanism for using other encodings explicitly, if needed for
+backwards compatibility.
+
 ### Version
 
 To indicate that this is TAP14 the first line _must_ be
