@@ -174,7 +174,7 @@ other way, rendering the output unreliable.
 The Plan lists the range of test point IDs that are expected in the TAP
 stream.  It can also optionally contain a comment/reason prefixed by a `#`.
 
-It's basic grammar is:
+Its basic grammar is:
 
 ```ebnf
 Plan := "1.." Number ("" | "# " Reason)
