@@ -457,7 +457,8 @@ recognized, but cannot be set for some reason.
 ### Blank Lines
 
 For the purposes of this specification, a "blank" line is any line
-consisting exclusively of zero or more whitespace characters.
+consisting exclusively of zero or more whitespace characters (ie,
+`/^[ \t]+$/`).
 
 Blank lines within YAML blocks _must_ be preserved as part of the YAML
 document, because line breaks have semantic meaning in YAML documents.  For
