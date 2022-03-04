@@ -100,7 +100,7 @@ In a typical TAP implementation, tests are programs that ouput TAP data
 according to this specification.  The "test harness" reads TAP output from
 these programs, and handles it in some way.
 
-A harness that is collecting output from test programs _should_ read and
+A harness that is collecting output from a test program _should_ read and
 interpret TAP from the process's standard output, not standard error.
 (Handling of test standard error is implementation-specific.)
 
