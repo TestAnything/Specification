@@ -43,18 +43,23 @@ TAP14's general grammar is:
 ```ebnf
 TAPDocument := Version Plan Body | Version Body Plan
 Version     := "TAP version 14\n"
-Plan        := (Number) ".." (Number) (" # " Reason)? "\n"
+Plan        := "1.." (Number) (" # " Reason)? "\n"
 Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty)*
-TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? "\n" (YamlBlock)?
+TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? (" " Directive)? "\n" (YamlBlock)?
+Directive   := "# " ("todo" | "skip") (" " Reason)?
 YamlBlock   := "  ---\n" (YamlLine)* "  ...\n"
 YamlLine    := "  " (Yaml)* "\n"
-BailOut     := "Bail out!" (" " Reason)?
+BailOut     := "Bail out!" (" " Reason)? "\n"
+Reason      := [^\n]+
 Pragma      := "pragma " [+-] PragmaKey "\n"
 PragmaKey   := ([a-zA-Z0-9_-])+
-Comment     := (" ")* "#" [^\n]* "\n"
+Comment     := ^ (" ")* "#" [^\n]* "\n"
 Empty       := [\s\t]* "\n"
 Anything    := [^\n]+ "\n"
 ```
+
+(Note that the above is intended as a rough "pseudocode" guidance for
+humans.  It is not strict EBNF.)
 
 The Version is the line `TAP version 14`.
 
