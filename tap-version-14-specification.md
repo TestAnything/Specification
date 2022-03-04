@@ -511,7 +511,7 @@ A Harness _may_ silently ignore invalid TAP lines, pass them through to its
 own stderr or stdout, or report them in some other fashion.  However, it
 _should not_ treat invalid TAP lines as a test failure by default.
 
-## EXAMPLES
+## Examples
 
 All names, places, and events depicted in any example are wholly fictitious
 and bear no resemblance to, connection with, or relation to any real
