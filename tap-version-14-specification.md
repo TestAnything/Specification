@@ -330,8 +330,10 @@ To summarize:
 #### DIRECTIVES
 
 Directives are special notes that follow a `#` on the Test Point line. Only
-two are currently defined: `TODO` and `SKIP`. These two keywords are not
-case-sensitive.
+two are currently defined: `TODO` and `SKIP`.
+
+Directives are not case sensitive.  That is, Harnesses _must_ treat `#
+SKIP`, `# skip`, and `# SkIp` identically.
 
 Harnesses _may_ support additional platform-specific directives.  Future
 versions of this specification _may_ codify additional directives with
