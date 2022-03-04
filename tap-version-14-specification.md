@@ -468,6 +468,9 @@ if they would normally treat invalid TAP as a test failure.  Harnesses
 _may_ warn if a Pragma is unrecognized, or fail if the named pragma is
 recognized, but cannot be set for some reason.
 
+Pragmas _must not_ include comments, directives, or other characters other
+than those specified above.
+
 ### Blank Lines
 
 For the purposes of this specification, a "blank" line is any line
