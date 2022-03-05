@@ -304,6 +304,10 @@ ok 4
 ok 1
 ```
 
+Test Point IDs _should_ be unique within the TAP Document.  Harnesses _may_
+warn about repeated Test Point IDs or treat them as a test failure, but
+_must not_ treat a Test Point with a re-used ID as a non-TAP line.
+
 #### Description
 
 Any text after the test number but before a `#` is the description of
