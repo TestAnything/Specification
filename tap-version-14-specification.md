@@ -789,11 +789,11 @@ considerable input, encouragement, feedback, and suggestions from:
 The TAP 13 Specification was written by Andy Armstrong with help and
 contributions from Pete Krawczyk, Paul Johnson, Ian Langworth and Nik
 Clayton, based on the original TAP documentation by Andy Lester, based on
-the original Test::Harness documentation by Michael Schwern.
+the original `Test::Harness` documentation by Michael Schwern.
 
 The basis for the TAP format was created by Larry Wall in the original test
 script for Perl 1. Tim Bunce and Andreas Koenig developed it further with
-their modifications to Test::Harness.
+their modifications to `Test::Harness`.
 
 ## Copyright
 
