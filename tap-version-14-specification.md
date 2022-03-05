@@ -29,7 +29,7 @@ TAP, the Test Anything Protocol, is a simple text-based interface between
 testing modules a test harness. TAP started life as part of the test
 harness for Perl but now has implementations in C/C++, Python, PHP, Perl,
 JavaScript, and probably others by the time you read this.  This document
-describes version 14 of TAP. Go to TAP to read about previous versions.
+describes version 14 of TAP.
 
 The key words _must_, _must not_, _required_, _shall_, _shall not_,
 _should_, _should not_, _recommended_, _may_, and _optional_ in this
