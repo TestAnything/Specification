@@ -786,6 +786,9 @@ considerable input, encouragement, feedback, and suggestions from:
 
 ## Acknowledgements
 
+Special thanks to [Jonathan Kingston](https://github.com/jonathanKingston)
+for his efforts to keep TAP flourishing and bring implementors together.
+
 The TAP 13 Specification was written by Andy Armstrong with help and
 contributions from Pete Krawczyk, Paul Johnson, Ian Langworth and Nik
 Clayton, based on the original TAP documentation by Andy Lester, based on
