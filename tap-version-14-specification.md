@@ -3,7 +3,7 @@ layout: default
 title: TAP 14 specification
 ---
 
-# STATUS: DRAFT
+# Status: DRAFT
 
 This is a draft document pending further editing and ratification by no
 fewer than 3 widely used TAP implementations in 3 different language
@@ -333,7 +333,7 @@ To summarize:
 - Directive (only when necessary)
 
 
-#### DIRECTIVES
+#### Directives
 
 Directives are special notes that follow a `#` on the Test Point line. Only
 two are currently defined: `TODO` and `SKIP`.
@@ -667,12 +667,12 @@ ok - board has 7 tiles + starter tile
 1..9
 ```
 
-## BUGS
+## Bugs
 
 Feature requests and bug reports should be [raised on
 GitHub.](https://github.com/TestAnything/Specification/issues/new)
 
-## AUTHORS
+## Authors
 
 The TAP 14 Specification is authored by [Isaac Z.
 Schlueter](https://github.com/isaacs), as a result of much discussion on
@@ -685,7 +685,7 @@ considerable input, encouragement, feedback, and suggestions from:
 * [Bruno P. Kinoshita](https://github.com/kinow)
 * [Chad Granum](https://github.com/exodist)
 
-## ACKNOWLEDGEMENTS
+## Acknowledgements
 
 The TAP 13 Specification was written by Andy Armstrong with help and
 contributions from Pete Krawczyk, Paul Johnson, Ian Langworth and Nik
@@ -696,7 +696,7 @@ The basis for the TAP format was created by Larry Wall in the original test
 script for Perl 1. Tim Bunce and Andreas Koenig developed it further with
 their modifications to Test::Harness.
 
-## COPYRIGHT
+## Copyright
 
 Copyright 2015-2022 by Isaac Z. Schlueter <i@izs.me> and Contributors.
 
