@@ -214,128 +214,122 @@ The core of TAP is the "Test Point". A test file prints one test point
 executed. There must be at least one test point in TAP output. Each test
 point comprises the following elements:
 
-- Test Status: `ok` or `not ok`
-
-    This tells whether the test point passed or failed. It must be at the
-    beginning of the line. `/^not ok/` indicates a failed test point.
-    `/^ok/` is a successful test point. This is the only mandatory part of
-    the line.
-
-    Note that unlike the Directives below, `ok` and `not ok` are
-    case-sensitive.
-
-- Test Point ID
-
-    TAP expects the ok or not ok to be followed by an integer Test Point
-    ID. If there is no number, the harness _must_ maintain its own counter
-    until the script supplies test numbers again.
-
-    For example, the following test output is acceptable:
-
-    ```tap
-    1..5
-    not ok
-    ok
-    not ok
-    ok
-    ok
-    ```
-
-    and is equivalent to:
-
-    ```tap
-    1..5
-    not ok 1
-    ok 2
-    not ok 3
-    ok 4
-    ok 5
-    ```
-
-    This test output is _not_ a successful test run:
-
-    ```tap
-    TAP version 13
-    1..6
-    not ok
-    ok
-    not ok
-    ok
-    ok
-    ```
-
-    Five tests are shown, but the plan indicated that there would be 6.
-    Furthermore, tests 1 and 3 are explicitly failing.  Perl's
-    `Test::Harness` will report:
-
-    ```
-    FAILED tests 1, 3, 6
-    Failed 3/6 tests, 50.00% okay
-    ```
-
-    Test Points _may_ be output in any order, but any Test Point ID
-    provided _must_ be within the range described by the Plan.
-
-    This is valid TAP and a successful test run:
-
-    ```tap
-    TAP version 14
-    1..3
-    ok 2
-    ok 3
-    ok 1
-    ```
-
-    This is not a successful test run. Even though there are 3 Test Points,
-    the Test Point ID 4 is outside the stated Plan range.
-
-    ```tap
-    TAP version 14
-    1..3
-    ok 2
-    ok 4
-    ok 1
-    ```
-
-- Description
-
-    Any text after the test number but before a `#` is the description of
-    the test point.
-
-    ```tap
-    ok 42 - this is the description of the test
-    ```
-
-    Descriptions _should_ be separated from the Test Point Status and Test
-    Point ID by the string `" - "`, in order to prevent confusing a numeric
-    description with a Test Point ID.  Harnesses _must_ treat Test Points
-    identically whether the description starts with `" - "` or not.
-
-    For example, these two test points _must_ be treated identically by a
-    Harness:
-
-    ```tap
-    ok 1 this is fine
-    ok 1 - this is fine
-    ```
-
-    Harnesses _should not_ consider a leading `" - "` to be a part of the
-    description reported to a user.
-
-- Directive
-
-    The test point may include a directive, following a `#` on the test
-    line.  There are currently two Directives allowed: `TODO` and `SKIP`.
-    These are discussed below.
-
-To summarize:
+In summary:
 
 - Test Status: `ok`/`not ok` (required)
 - Test number (recommended)
 - Description (recommended, prefixed by `" - "`)
 - Directive (only when necessary)
 
-#### Directives
+#### Test Status: `ok` or `not ok`
+
+This tells whether the test point passed or failed. It must be at the
+beginning of the line. `/^not ok/` indicates a failed test point.
+`/^ok/` is a successful test point. This is the only mandatory part of
+the line.
+
+Note that unlike the Directives below, `ok` and `not ok` are
+case-sensitive.
+
+#### Test Point ID
+
+TAP expects the ok or not ok to be followed by an integer Test Point
+ID. If there is no number, the harness _must_ maintain its own counter
+until the script supplies test numbers again.
+
+For example, the following test output is acceptable:
+
+```tap
+1..5
+not ok
+ok
+not ok
+ok
+ok
+```
+
+and is equivalent to:
+
+```tap
+1..5
+not ok 1
+ok 2
+not ok 3
+ok 4
+ok 5
+```
+
+This test output is _not_ a successful test run:
+
+```tap
+TAP version 13
+1..6
+not ok
+ok
+not ok
+ok
+ok
+```
+
+Five tests are shown, but the plan indicated that there would be 6.
+Furthermore, tests 1 and 3 are explicitly failing.  Perl's
+`Test::Harness` will report:
+
+```
+FAILED tests 1, 3, 6
+Failed 3/6 tests, 50.00% okay
+```
+
+Test Points _may_ be output in any order, but any Test Point ID
+provided _must_ be within the range described by the Plan.
+
+This is valid TAP and a successful test run:
+
+```tap
+TAP version 14
+1..3
+ok 2
+ok 3
+ok 1
+```
+
+This is not a successful test run. Even though there are 3 Test Points,
+the Test Point ID 4 is outside the stated Plan range.
+
+```tap
+TAP version 14
+1..3
+ok 2
+ok 4
+ok 1
+```
+
+#### Description
+
+Any text after the test number but before a `#` is the description of
+the test point.
+
+```tap
+ok 42 - this is the description of the test
+```
+
+Descriptions _should_ be separated from the Test Point Status and Test
+Point ID by the string `" - "`, in order to prevent confusing a numeric
+description with a Test Point ID.  Harnesses _must_ treat Test Points
+identically whether the description starts with `" - "` or not.
+
+For example, these two test points _must_ be treated identically by a
+Harness:
+
+```tap
+ok 1 this is fine
+ok 1 - this is fine
+```
+
+Harnesses _should not_ consider a leading `" - "` to be a part of the
+description reported to a user.
+
+#### Directive
 
 Directives are special notes that follow the first unescaped `#` on the
 Test Point line.  Only two are currently defined: `TODO` and `SKIP`.
