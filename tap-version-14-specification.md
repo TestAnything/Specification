@@ -205,6 +205,9 @@ Harnesses _may_ allow plans starting with numbers other than 1, but if so,
 they _must_ treat any Test Point IDs outside the plan range as a test
 failure.
 
+`#` and `\` characters may be escaped in Plan reason, and if so, _should_
+be unescaped prior to being presented to the user.  See "Escaping" below.
+
 ### Test Points
 
 The core of TAP is the "Test Point". A test file prints one test point
@@ -321,8 +324,8 @@ point comprises the following elements:
 
 - Directive
 
-    The test point may include a directive, following a hash on the test
-    line.  There are currently two directives allowed: `TODO` and `SKIP`.
+    The test point may include a directive, following a `#` on the test
+    line.  There are currently two Directives allowed: `TODO` and `SKIP`.
     These are discussed below.
 
 To summarize:
@@ -332,20 +335,24 @@ To summarize:
 - Description (recommended, prefixed by `" - "`)
 - Directive (only when necessary)
 
-
 #### Directives
 
-Directives are special notes that follow a `#` on the Test Point line. Only
-two are currently defined: `TODO` and `SKIP`.
+Directives are special notes that follow the first unescaped `#` on the
+Test Point line.  Only two are currently defined: `TODO` and `SKIP`.
 
 Directives are not case sensitive.  That is, Harnesses _must_ treat `#
 SKIP`, `# skip`, and `# SkIp` identically.
 
-Harnesses _may_ support additional platform-specific directives.  Future
-versions of this specification _may_ codify additional directives with
+Harnesses _may_ support additional platform-specific Directives.  Future
+versions of this specification may codify additional Directives with
 defined semantics.
 
-Unrecognized directives _must_ be ignored, and treated as comments.
+Unrecognized Directives _must_ not be treated as test failure, or an
+invalid TAP line.  Harnesses _should_ include any unrecognized directives
+in the Test Point description.
+
+Note that escaped `#` characters are not to be treated as delimiters for
+Directives.  See "Escaping" below.
 
 ##### `TODO` tests
 
@@ -474,7 +481,7 @@ if they would normally treat invalid TAP as a test failure.  Harnesses
 _may_ warn if a Pragma is unrecognized, or fail if the named pragma is
 recognized, but cannot be set for some reason.
 
-Pragmas _must not_ include comments, directives, or other characters other
+Pragmas _must not_ include Comments, Directives, or other characters other
 than those specified above.
 
 ### Blank Lines
@@ -499,11 +506,20 @@ that case the test script prints the magic words
 Bail out!
 ```
 
-to standard output. Any message after these words must be displayed by the
-interpreter as the reason why testing must be stopped, as in
+to standard output. Any message after these words _must_ be presented by
+the Harness as the reason why testing must be stopped.  For example:
 
 ```tap
 Bail out! MySQL is not running.
+```
+
+`#` and `\` characters may be escaped in `Bail out!` messages, and if so,
+_should_ be unescaped prior to being presented to the user.  See
+"Escaping" below.
+
+```tap
+# reason for stopping: # and \ are not supported
+Bail out! \# and \\ are not supported
 ```
 
 The words "Bail out!" are case insensitive.
@@ -514,8 +530,91 @@ Any line that is not a valid version, plan, test point, YAML diagnostic,
 pragma, a blank line, or a bail out is invalid TAP.
 
 A Harness _may_ silently ignore invalid TAP lines, pass them through to its
-own stderr or stdout, or report them in some other fashion.  However, it
-_should not_ treat invalid TAP lines as a test failure by default.
+own stderr or stdout, or report them in some other fashion.  However,
+Harnesses _should not_ treat invalid TAP lines as a test failure by
+default.
+
+## Escaping
+
+Sometimes a user may include a `#` character in a Test Point description,
+Plan comment, Bailout reason, or TODO/SKIP reason.
+
+In order to distinguish this from a directive or other sort of comment, the
+`#` character may be escaped with a backslash `\` character.  To include a
+literal `\` character, a double-`\` may be used.  No other characters may
+be escaped in this way; a `\` that precedes any character other than `\` or
+`#` will be interpreted as a literal `\` and included in the result data.
+
+Providers _should_ escape any `#` or `\` that is present in the Test Point
+description or directive reason sections.
+
+For example:
+
+```js
+// using node-tap
+const t = require('tap')
+t.pass('hello # \\ world', { todo: 'escape # characters with \\' })
+// outputs:
+// ok 1 - hello \# \\ world # TODO escape \# characters with \\
+```
+
+Harnesses _must_:
+
+1. Treat any `\\` as a literal `\`, but ignore it for the purpose of
+   escaping a `#` character.
+2. Treat any `\#` as a literal `#`, but ignore it for the purpose of
+   delimiting a directive, provided the `\` was not escaped.
+3. Treat any unescaped `#` as a literal `#` in a description or reason
+   field, if doing so would not cause it to be treated as a delimiter.
+
+### Escaping Examples
+
+The following are examples of escaping `#` and `\` characters, and
+including unescaped `#` characters in the Test Point description or `TODO`
+reason.
+
+Note that the specific fields `description`, `todo`, and `todo reason` are
+not normative, and shown for illustration purposes only.  Harnesses
+_should_ present this data to their consumers in whatever manner is
+appropriate for their language and context.
+
+```tap
+TAP version 14
+
+# description: hello
+# todo: true
+ok 1 - hello # todo
+
+# description: hello # todo
+# todo: false
+ok 2 - hello \# todo
+
+# description: hello
+# todo: true
+# todo reason: hash # character
+ok 3 - hello # todo hash \# character
+# (assuming "character" isn't a known custom directive)
+ok 4 - hello # todo hash # character
+
+# description: hello \
+# todo: true
+# todo reason: hash # character
+ok 5 - hello \\# todo hash \# character
+# (assuming "character" isn't a known custom directive)
+ok 6 - hello \\# todo hash # character
+
+# description: hello # description # todo
+# todo: false
+# (assuming "description" isn't a known custom directive)
+ok 7 - hello # description # todo
+
+# multiple escaped \ can appear in a row
+# description: hello \\\# todo
+# todo: false
+ok 8 - hello \\\\\\\# todo
+
+1..8
+```
 
 ## Examples
 
