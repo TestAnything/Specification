@@ -352,10 +352,40 @@ in the Test Point description.
 Note that escaped `#` characters are not to be treated as delimiters for
 Directives.  See "Escaping" below.
 
+##### Backwards Compatibility Note
+
+For backwards compatibility with earlier incarnations of TAP, Harnesses
+_must_ accept additional non-whitespace characters following the the
+literal strings `"# SKIP"` or `"# TODO"`.  Everything after
+`(TODO|SKIP)\S*\s+` is the reason.  For example, this is supported, and
+shows a test with 2 `skip` tests: one with no reason given, and the other
+with an explanation.
+
+```tap
+TAP version 14
+1..2
+ok 1 - do it later # Skipped
+ok 2 - works on windows # Skipped: only run on windows
+```
+
+For broad compatibility with as many harnesses as possible, as well as
+future-proofing their output, Producers _should_ always report `SKIP` and
+`TODO` tests using only the directive names ("SKIP" or "TODO"), optionally
+followed by a space and a reason.  Future versions of this specification
+may drop support for `\S*` characters following directive names.
+
+Thus, the regular expression for directives is:
+
+```
+/#\s+(SKIP|TODO)\S*\s+([^\n]*)/
+directive type = $1
+reason = $2
+```
+
 ##### `TODO` tests
 
 If the directive starts with `# TODO`, the test is counted as a todo test,
-and the text after `TODO` is the explanation.
+and any text after `TODO\S*\s+` is the explanation.
 
 ```tap
 not ok 14 # TODO bend space and time
@@ -378,7 +408,7 @@ needing work, if that is appropriate for their use case.
 ##### `SKIP` tests
 
 If the directive starts with `# SKIP`, the test is counted as a skipped
-test, and the text after `SKIP` is the explanation.
+test, and the text after `SKIP\S*\s+` is the explanation.
 
 ```tap
 ok 14 - mung the gums # SKIP leave gums unmunged for now
