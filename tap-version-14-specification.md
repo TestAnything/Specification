@@ -336,7 +336,8 @@ description reported to a user.
 #### Directive
 
 Directives are special notes that follow the first unescaped `#` on the
-Test Point line.  Only two are currently defined: `TODO` and `SKIP`.
+Test Point line which is preceded by whitespace.  Only two are currently
+defined: `TODO` and `SKIP`.
 
 Directives are not case sensitive.  That is, Harnesses _must_ treat `#
 SKIP`, `# skip`, and `# SkIp` identically.
@@ -352,19 +353,23 @@ in the Test Point description.
 Note that escaped `#` characters are not to be treated as delimiters for
 Directives.  See "Escaping" below.
 
-##### Backwards Compatibility Note
+##### Backwards Compatibility and Parsing Notes
 
 For backwards compatibility with earlier incarnations of TAP, Harnesses
 _must_ accept additional non-whitespace characters following the the
-literal strings `"# SKIP"` or `"# TODO"`.  Everything after
-`(TODO|SKIP)\S*\s+` is the reason.  For example, this is supported, and
-shows a test with 2 `skip` tests: one with no reason given, and the other
-with an explanation.
+literal strings `"SKIP"` or `"TODO"`.  Everything after `(TODO|SKIP)\S*\s+`
+is the reason.  For example, this is supported, and shows a test with 2
+`skip` tests: one with no reason given, and the other with an explanation.
 
 ```tap
 TAP version 14
 1..2
+
+# skip: true
 ok 1 - do it later # Skipped
+
+# skip: true
+# skip reason: "only run on windows"
 ok 2 - works on windows # Skipped: only run on windows
 ```
 
@@ -377,9 +382,29 @@ may drop support for `\S*` characters following directive names.
 Thus, the regular expression for directives is:
 
 ```
-/#\s+(SKIP|TODO)\S*\s+([^\n]*)/
+/\s+#\s*(SKIP|TODO)\S*\s+([^\n]*)/
 directive type = $1
 reason = $2
+```
+
+More examples of parsing directives:
+
+```tap
+TAP version 14
+
+# skip: true
+# skip reason: "this test is skipped"
+# description: ""
+ok 1 #skip this test is skipped
+
+# skip: false
+# description: "not skipped: https://example.com/page.html\#skip is a url"
+ok 2 not skipped: https://example.com/page.html#skip is a url
+
+# skip: true
+# skip reason: "case insensitive, so this is skipped"
+# description: ""
+ok 3 - #SkIp case insensitive, so this is skipped
 ```
 
 ##### `TODO` tests
