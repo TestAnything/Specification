@@ -356,7 +356,7 @@ Directives.  See "Escaping" below.
 ##### Backwards Compatibility and Parsing Notes
 
 For backwards compatibility with earlier incarnations of TAP, Harnesses
-_must_ accept additional non-whitespace characters following the the
+_must_ accept additional non-whitespace characters following the
 literal strings `"SKIP"` or `"TODO"`.  Everything after `(TODO|SKIP)\S*\s+`
 is the reason.  For example, this is supported, and shows a test with 2
 `skip` tests: one with no reason given, and the other with an explanation.
