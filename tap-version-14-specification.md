@@ -46,7 +46,7 @@ Version     := "TAP version 14\n"
 Plan        := "1.." (Number) (" # " Reason)? "\n"
 Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty)*
 TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? (" " Directive)? "\n" (YAMLBlock)?
-Directive   := "# " ("todo" | "skip") (" " Reason)?
+Directive   := " # " ("todo" | "skip") (" " Reason)?
 YAMLBlock   := "  ---\n" (YAMLLine)* "  ...\n"
 YAMLLine    := "  " (YAML)* "\n"
 BailOut     := "Bail out!" (" " Reason)? "\n"
@@ -58,8 +58,9 @@ Empty       := [\s\t]* "\n"
 Anything    := [^\n]+ "\n"
 ```
 
-(Note that the above is intended as a rough "pseudocode" guidance for
-humans.  It is not strict EBNF.)
+Note that the above is intended as a rough "pseudocode" guidance for
+humans.  It is not strict EBNF.  Detailed parsing instructions for each
+element can be found in the sections below.
 
 The Version is the line `TAP version 14`.
 
@@ -336,8 +337,8 @@ description reported to a user.
 #### Directive
 
 Directives are special notes that follow the first unescaped `#` on the
-Test Point line which is preceded by whitespace.  Only two are currently
-defined: `TODO` and `SKIP`.
+Test Point line that is preceded and followed by whitespace.  Only two are
+currently defined: `TODO` and `SKIP`.
 
 Directives are not case sensitive.  That is, Harnesses _must_ treat `#
 SKIP`, `# skip`, and `# SkIp` identically.
@@ -346,12 +347,52 @@ Harnesses _may_ support additional platform-specific Directives.  Future
 versions of this specification may codify additional Directives with
 defined semantics.
 
-Unrecognized Directives _must_ not be treated as test failure, or an
+Unrecognized Directives _must not_ be treated as test failure, or an
 invalid TAP line.  Harnesses _should_ include any unrecognized directives
 in the Test Point description.
 
 Note that escaped `#` characters are not to be treated as delimiters for
 Directives.  See "Escaping" below.
+
+##### Whitespace Around Directive Delimiter
+
+Earlier versions of the TAP specification were not explicit about
+whitespace requirements regarding directives.  The following rules maximize
+compatibility between TAP14 producers and harnesses:
+
+1. Producers _must_ output directives with at least one space character
+   preceding the `#` in a directive, as well as at least one space
+   character between the `#` and the directive name.
+
+2. Harnesses _must not_ treat escaped `#` characters as directive
+   delimiters.
+
+3. Harnesses _may_ accept directive delimiters where the `#` is not
+   preceded by whitespace, but _should_ warn that such output is
+   non-conformant with the TAP14 specification.
+
+If harnesses choose to parse directives without whitespace before and after
+the `#`, then they ought to consider the impact if test descriptions
+contain URLs and/or may be coming from TAP producers that are not diligent
+about escaping `#` characters.  This should be done only to the extent
+necessary for backwards compatibility with existing TAP producers.
+
+For example:
+
+```tap
+TAP version 13
+
+# MUST be treated as a SKIP test
+ok 1 - must be skipped test # SKIP
+
+# MUST NOT be treated as a SKIP test
+ok 2 - must not be skipped test \# SKIP
+
+# MAY be treated as a SKIP test, but SHOULD warn about it
+ok 3 - may skip, but should warn# skip
+ok 4 - may skip, but should warn #skip
+ok 5 - may skip, but should warn#skip
+```
 
 ##### Backwards Compatibility and Parsing Notes
 
@@ -395,7 +436,7 @@ TAP version 14
 # skip: true
 # skip reason: "this test is skipped"
 # description: ""
-ok 1 #skip this test is skipped
+ok 1 # skip this test is skipped
 
 # skip: false
 # description: "not skipped: https://example.com/page.html\#skip is a url"
@@ -487,7 +528,7 @@ YAML Diagnostic fields in common usage.
 ### Comments
 
 Lines outside of a YAML diagnostic block which begin with a `#` character
-preceeded by zero or more characters of whitespace, are comments.
+preceded by zero or more characters of whitespace, are comments.
 
 A Harness _may_ present these to the user, ignore them, or assign meaning
 to certain comments.
