@@ -263,7 +263,7 @@ ok 5
 This test output is _not_ a successful test run:
 
 ```tap
-TAP version 13
+TAP version 14
 1..6
 not ok
 ok
@@ -380,7 +380,7 @@ necessary for backwards compatibility with existing TAP producers.
 For example:
 
 ```tap
-TAP version 13
+TAP version 14
 
 # MUST be treated as a SKIP test
 ok 1 - must be skipped test # SKIP
@@ -553,7 +553,7 @@ The structure of a Pragma line is:
 For example:
 
 ```tap
-TAP version 13
+TAP version 14
 # tell the parser to bail out on any failures from now on
 pragma +bail
 
