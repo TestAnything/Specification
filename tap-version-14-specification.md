@@ -44,7 +44,7 @@ TAP14's general grammar is:
 TAPDocument := Version Plan Body | Version Body Plan
 Version     := "TAP version 14\n"
 Plan        := "1.." (Number) (" # " Reason)? "\n"
-Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty)*
+Body        := (TestPoint | BailOut | Pragma | Comment | Anything | Empty | Subtest)*
 TestPoint   := ("not ")? "ok" (" " Number)? ((" -")? (" " Description) )? (" " Directive)? "\n" (YAMLBlock)?
 Directive   := " # " ("todo" | "skip") (" " Reason)?
 YAMLBlock   := "  ---\n" (YAMLLine)* "  ...\n"
@@ -53,6 +53,7 @@ BailOut     := "Bail out!" (" " Reason)? "\n"
 Reason      := [^\n]+
 Pragma      := "pragma " [+-] PragmaKey "\n"
 PragmaKey   := ([a-zA-Z0-9_-])+
+Subtest     := ("# Subtest" (": " SubtestName)?)? "\n" SubtestDocument TestPoint
 Comment     := ^ (" ")* "#" [^\n]* "\n"
 Empty       := [\s\t]* "\n"
 Anything    := [^\n]+ "\n"
@@ -67,6 +68,9 @@ The Version is the line `TAP version 14`.
 The Body is a collection of lines representing a test set.
 
 The Plan reports on the number of tests included in the Body.
+
+A Subtest indicates a nested TAP Document that is included by the parent
+TAP Document.  It is a TAP Document where each line is indented by 4 spaces.
 
 For example, a test file's output might look like:
 
@@ -709,6 +713,266 @@ ok 8 - hello \\\\\\\# todo
 
 1..8
 ```
+
+## Subtests
+
+Subtests provide a way to nest one TAP14 stream inside another.  This is
+useful in a variety of situations.  For example:
+
+1. A Harness parses a collection of TAP documents, providing output which
+   is also in TAP format.
+
+    ```tap
+    TAP version 14
+    1..2
+
+    # Subtest: foo.tap
+        1..2
+        ok 1
+        ok 2 - this passed
+    ok 1 - foo.tap
+
+    # Subtest: bar.tap
+        ok 1 - object should be a Bar
+        not ok 2 - object.isBar should return true
+          ---
+          found: false
+          wanted: true
+          at:
+            file: test/bar.ts
+            line: 43
+            column: 8
+          ...
+        ok 3 - object can bar bears # TODO
+        1..3
+    not ok 2 - bar.tap
+      ---
+      fail: 1
+      todo: 1
+      ...
+    ```
+
+2. A test framework Producer provides an API for grouping assertions about
+   a related subject.  For example:
+
+    ```js
+    import t from 'tap'
+    t.ok(true, 'true is ok')
+    t.test('this is a subtest', subtest => {
+      subtest.pass('this is fine')
+      subtest.fail('this is not fine')
+      subtest.end()
+    })
+    ```
+
+    which produces the output:
+
+    ```tap
+    TAP version 14
+    ok 1 - true is ok
+    # Subtest: this is a subtest
+        ok 1 - this is fine
+        not ok 2 - this is not fine
+        1..2
+    not ok 2 - this is a subtest
+    1..2
+    ```
+
+Subtests are designed with graceful fallback for TAP 13 harnesses in mind.
+
+Since TAP 13 specifies that non-TAP output _should_ be ignored or provided
+directly to the user, and indented Test Points and Plans are non-TAP
+according to TAP 13, only the terminating correlated test point will be
+interpreted by most TAP 13 Harnesses.  Thus, they will usually report the
+overall subtest result correctly, even if they lack the details about the
+results of the subtest.
+
+Since several TAP 13 parsers in popular usage treat a repeated Version
+declaration as an error, even if the Version is indented, Subtests _should
+not_ include a Version, if TAP 13 Harness compatibility is desirable.
+
+### Bare Subtests
+
+In its simplest form, a Subtest is introduced by a 4-space indented Test
+Point, Version, Plan or Pragma line.
+
+For example:
+
+```tap
+TAP version 14
+    ok 1 - subtest test point
+    1..1
+ok 1 - subtest passing
+1..1
+```
+
+Note that, because the Version is optional in subtests, and the plan may
+occur after all test points, the first item in a subtest may be a further
+subtest.  Harnesses must thus treat any multiple of 4-space indentation is
+multiple levels of nested subtest:
+
+```tap
+TAP version 14
+        ok 1 - nested twice
+        1..1
+    ok 1 - nested parent
+    1..1
+ok 1 - double nest passing
+1..1
+```
+
+The first test point at the parent level is the correlated Test Point for
+the subtest, and terminates the Subtest.
+
+### Commented Subtests
+
+A Subtest may be introduced with a comment at the parent test indentation
+level, which defines the expected name of the terminating correlated Test
+Point.
+
+This comment has the form `^# Subtest(: .*)$`.  Everything after the `: `
+is the Subtest Name.  For example:
+
+```tap
+# Subtest: <name>
+```
+
+or
+
+```tap
+# Subtest
+```
+
+A Commented Subtest with a Subtest Name _must_ be terminated by a Test
+Point with a matching Description.  If no Subtest Name is present, then the
+terminating Test Point _must not_ include a description.
+
+For example:
+
+```tap
+TAP version 14
+
+ok 1 - in the parent
+
+# Subtest: nested
+    1..1
+    ok 1 - in the subtest
+ok 2 - nested
+
+# Subtest: empty
+    1..0
+ok 3 - empty
+
+# Subtest
+    ok 1 - name is optional
+    1..1
+ok 4
+
+1..4
+```
+
+Commented Subtests are encouraged, as they provide the following benefits:
+
+* Easier for humans to read.  For example:
+
+    ```tap
+    TAP version 14
+                1..1
+                ok 1 - hmm, what level is this?
+    ```
+
+    vs:
+
+    ```tap
+    TAP version 14
+    # Subtest: level 1
+        # Subtest: level 2
+            # Subtest: level 3
+                1..1
+                ok 1 - clearly level 3
+    ```
+
+* Additional strictness around matching the Test Point description to
+  Subtest Name can catch errors and detect accidentally interleaved output.
+
+### Subtest Bailouts
+
+Harnesses _must_ treat a Bailout in a nested Subtest as a bailout for the
+entire test run.
+
+For backwards compatibility with TAP13 Harnesses, Producers _should_ emit a
+`Bail out!` line at the root indentation level whenever a Subtest bails
+out.
+
+### Subtest Pragmas
+
+Any Pragmas set in a Subtest affect _only_ the parsing of the Subtest.
+Harnesses _must not_ allow Pragmas set in Subtests to affect the behavior
+of the parser with respect to the parent TAP Document.
+
+For example, given a Harnesses where a `strict` Pragma will cause it to
+treat any non-TAP as an error:
+
+```tap
+TAP version 14
+pragma -strict
+# Subtest: child test
+    1..1
+    pragma +strict
+    ok 1
+ok 1 - child test
+!!This is not valid TAP content!!
+1..1
+```
+
+In this TAP document, the non-TAP content _must not_ be treated as a test
+failure, because the `strict` Pragma setting at the parent level was false.
+
+### Subtest Parsing/Generating Rules
+
+1. The subtest TAP document is indented 4 spaces.
+2. Subtests _must_ be a valid TAP document, meaning that they cannot be
+   entirely empty.  At minimum, they must include a `1..0` line to indicate
+   that no Test Points are expected.  This implies the following:
+    1. Subtests can be nested within subtests by indenting another 4
+       characters for each level of nesting.
+    2. YAML Diagnostics are indented 2 spaces with respect to the Test
+       Point they are associated with.  So, for example, a YAML Diagnostic
+       block for a Test Point in a nested subtest would be indented 6
+       spaces (4 + 2).  In a subtest nested within another subtest, YAML
+       diagnostics would be indented 10 spaces (4 + 4 + 2).
+3. Subtests _should not_ emit a Version line, if compatibility with TAP 13
+   Harnesses is desirable.
+4. The subtest is terminated by a single Test Point line in the parent TAP
+   document, which follows the indented TAP Document.  This is the
+   Correlated Test Point, and reflects the pass/fail status of the Subtest.
+    1. Producers _must_ communicate the intended status of the subtest
+       (pass/fail/todo/skip/etc.) by assigning these semantics to the
+       correlated Test Point.
+    2. Harneses _should_ treat the entire subtest as either a pass or fail
+       based on the status of the correlated Test Point, but _may_ treat
+       the subtest as a failure if they would consider the nested subtest
+       TAP Document a test failure.
+5. Harnesses _should_ treat otherwise valid TAP that is indented anything
+   other than a multiple of 4 spaces as non-TAP.
+6. Providers _should not_ emit a Version for the Subtest TAP Document.
+7. Providers _should_ emit a Subtest Comment if the name of the subtest is
+   known at the outset.
+8. If Subtest Comment is provided, Harnesses _should_ continue the subtest
+   until a matching test point (same name, or no name in either) at parent
+   level is found, treating any other un-indented lines as non-TAP, and
+   fail the test if a matching test point is not found.
+9. If subtest comment is not provided, Harnesses _must_ treat the next Test
+   Point at the parent level as the end of the subtest, and treat any
+   intervening lines indented less than the subtest level as non-TAP.
+10. Harnesses _should_ treat unterminated Subtests as non-TAP.
+11. A Bailout in a subtest TAP document _must_ abort the entire process,
+    exactly as if it had occurred in the top-level TAP document.
+12. Any lines at the parent indentation level that occur between the
+    Subtest Introduction and a valid Subtest Termination _must_ be treated
+    as non-TAP output.
+
+------
 
 ## Examples
 
