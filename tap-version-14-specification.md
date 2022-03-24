@@ -963,7 +963,7 @@ failure, because the `strict` Pragma setting at the parent level was false.
    until a matching test point (same name, or no name in either) at parent
    level is found, treating any other un-indented lines as non-TAP, and
    fail the test if a matching test point is not found.
-9. If subtest comment is not provided, Harnesses _must_ treat the next Test
+9. If Subtest Comment is not provided, Harnesses _must_ treat the next Test
    Point at the parent level as the end of the subtest, and treat any
    intervening lines indented less than the subtest level as non-TAP.
 10. Harnesses _should_ treat unterminated Subtests as non-TAP.
