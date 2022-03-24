@@ -778,18 +778,18 @@ useful in a variety of situations.  For example:
     1..2
     ```
 
-Subtests are designed with graceful fallback for TAP 13 harnesses in mind.
+Subtests are designed with graceful fallback for TAP13 harnesses in mind.
 
-Since TAP 13 specifies that non-TAP output _should_ be ignored or provided
+Since TAP13 specifies that non-TAP output _should_ be ignored or provided
 directly to the user, and indented Test Points and Plans are non-TAP
-according to TAP 13, only the terminating correlated test point will be
-interpreted by most TAP 13 Harnesses.  Thus, they will usually report the
+according to TAP13, only the terminating correlated test point will be
+interpreted by most TAP13 Harnesses.  Thus, they will usually report the
 overall subtest result correctly, even if they lack the details about the
 results of the subtest.
 
-Since several TAP 13 parsers in popular usage treat a repeated Version
+Since several TAP13 parsers in popular usage treat a repeated Version
 declaration as an error, even if the Version is indented, Subtests _should
-not_ include a Version, if TAP 13 Harness compatibility is desirable.
+not_ include a Version, if TAP13 Harness compatibility is desirable.
 
 ### Bare Subtests
 
@@ -910,8 +910,8 @@ Any Pragmas set in a Subtest affect _only_ the parsing of the Subtest.
 Harnesses _must not_ allow Pragmas set in Subtests to affect the behavior
 of the parser with respect to the parent TAP Document.
 
-For example, given a Harnesses where a `strict` Pragma will cause it to
-treat any non-TAP as an error:
+For example, given a Harness where a `strict` Pragma will cause it to treat
+any non-TAP as an error:
 
 ```tap
 TAP version 14
@@ -941,7 +941,7 @@ failure, because the `strict` Pragma setting at the parent level was false.
        block for a Test Point in a nested subtest would be indented 6
        spaces (4 + 2).  In a subtest nested within another subtest, YAML
        diagnostics would be indented 10 spaces (4 + 4 + 2).
-3. Subtests _should not_ emit a Version line, if compatibility with TAP 13
+3. Subtests _should not_ emit a Version line, if compatibility with TAP13
    Harnesses is desirable.
 4. The subtest is terminated by a single Test Point line in the parent TAP
    document, which follows the indented TAP Document.  This is the
@@ -949,7 +949,7 @@ failure, because the `strict` Pragma setting at the parent level was false.
     1. Producers _must_ communicate the intended status of the subtest
        (pass/fail/todo/skip/etc.) by assigning these semantics to the
        correlated Test Point.
-    2. Harneses _should_ treat the entire subtest as either a pass or fail
+    2. Harnesses _should_ treat the entire subtest as either a pass or fail
        based on the status of the correlated Test Point, but _may_ treat
        the subtest as a failure if they would consider the nested subtest
        TAP Document a test failure.
@@ -1147,7 +1147,7 @@ considerable input, encouragement, feedback, and suggestions from:
 Special thanks to [Jonathan Kingston](https://github.com/jonathanKingston)
 for his efforts to keep TAP flourishing and bring implementors together.
 
-The TAP 13 Specification was written by Andy Armstrong with help and
+The TAP13 Specification was written by Andy Armstrong with help and
 contributions from Pete Krawczyk, Paul Johnson, Ian Langworth and Nik
 Clayton, based on the original TAP documentation by Andy Lester, based on
 the original `Test::Harness` documentation by Michael Schwern.
