@@ -793,8 +793,9 @@ not_ include a Version, if TAP13 Harness compatibility is desirable.
 
 ### Bare Subtests
 
-In its simplest form, a Subtest is introduced by a 4-space indented Test
-Point, Version, Plan or Pragma line.
+In its simplest form, a Subtest is introduced by a 4-space indented valid
+TAP line.  That is, a Test Point, Version, Plan, or (if Pragmas are
+supported) Pragma, prefixed by 4 space characters.
 
 For example:
 
