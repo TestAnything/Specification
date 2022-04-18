@@ -3,14 +3,6 @@ layout: default
 title: TAP 14 specification
 ---
 
-# Status: DRAFT
-
-This is a draft document pending further editing and ratification by no
-fewer than 3 widely used TAP implementations in 3 different language
-communities.
-
-This section will likely be removed prior to ratification.
-
 ## Goals of This Specification
 
 * Document the observed behavior of widely used TAP implementations.
