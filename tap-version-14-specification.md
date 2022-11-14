@@ -18,7 +18,7 @@ TAP14 - The Test Anything Protocol v14
 ## Synopsis
 
 TAP, the Test Anything Protocol, is a simple text-based interface between
-testing modules a test harness. TAP started life as part of the test
+testing modules and test harness. TAP started life as part of the test
 harness for Perl but now has implementations in C/C++, Python, PHP, Perl,
 JavaScript, and probably others by the time you read this.  This document
 describes version 14 of TAP.
