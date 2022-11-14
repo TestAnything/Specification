@@ -3,6 +3,8 @@ layout: default
 title: TAP 14 specification
 ---
 
+<!-- SPDX-License-Identifier: Artistic-2.0 -->
+
 ## Goals of This Specification
 
 * Document the observed behavior of widely used TAP implementations.
@@ -1158,4 +1160,4 @@ Copyright 2003-2007 by Michael G Schwern <schwern@pobox.com>, Andy Lester
 <andy@petdance.com>, Andy Armstrong <andy@hexten.net>.
 
 This specification is released under the [Artistic License
-2.0](https://opensource.org/licenses/Artistic-2.0)
+2.0](https://spdx.org/licenses/Artistic-2.0)
