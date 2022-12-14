@@ -30,6 +30,27 @@ _should_, _should not_, _recommended_, _may_, and _optional_ in this
 document are to be interpreted as described in [RFC
 2119](https://datatracker.ietf.org/doc/html/rfc2119).
 
+## Changes From TAP13 Format
+
+TAP14 is largely backwards compatible with TAP13.  That is, TAP14
+is designed to be reasonably parseable by any compliant TAP13
+Harness, and TAP14 Harnesses should be able to reasonably
+interpret the output of TAP13 Producers.
+
+The following changes have been made to the specification, which
+are covered in much more detail below.
+
+* Change TAP version line to `14`.
+* Add child tests as 4-space indented TAP streams, with a
+  trailing test point and leading comment line.
+* Formalize the following conventions:
+    * 2-space indentation for YAML diagnostics.
+    * plans always start at `1`.
+    * escaping of `\` and `#` characters.
+    * prefixing of test point descriptions with `" - "`.
+* Increased clarity regarding parsing rules, based on behavior of
+  extant TAP13 implementations in popular programming languages.
+
 ## TAP14 Format
 
 TAP14's general grammar is:
