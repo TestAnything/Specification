@@ -171,8 +171,8 @@ This specification is compatible with observed behavior of existing
 [TAP13](https://testanything.org/tap-version-13-specification.html) consumers
 and producers.
 
-Harnesses _may_ interpret ostensibly older TAP streams as TAP14.  That is, they
-_may_ treat this as a valid and supported Version line while parsing TAP14:
+Harnesses _should_ interpret ostensibly older TAP streams as TAP14.  That is, they
+_should_ treat this as a valid and supported Version line while parsing TAP14:
 
 ```tap
 TAP version 13
