@@ -167,17 +167,20 @@ If there is no version line on the first line, the TAP version shall be 12.
 #### Backwards compatibility of TAP versions
 
 This specification is compatible with observed behavior of existing
+[TAP12](https://testanything.org/tap-specification.html) and
 [TAP13](https://testanything.org/tap-version-13-specification.html) consumers
 and producers.
 
-Harnesses _may_ interpret ostensibly TAP13 streams as TAP14.  That is, they
-_may_ treat this as a valid Version line while parsing TAP14:
+Harnesses _may_ interpret ostensibly older TAP streams as TAP14.  That is, they
+_may_ treat this as a valid and supported Version line while parsing TAP14:
 
 ```tap
 TAP version 13
 ```
 
-Harnesses _may_ treat any ostensibly TAP12 stream as a failed test.
+and likewise treat a missing Version line as implicitly TAP14.
+
+Harnesses _may_ instead treat any ostensibly older TAP stream as a failed test.
 
 ### Plan
 
