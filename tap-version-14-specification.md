@@ -198,12 +198,12 @@ This is a safeguard against test data being truncated or damaged in some
 other way, rendering the output unreliable.
 
 The Plan lists the range of test point IDs that are expected in the TAP
-stream.  It can also optionally contain a comment/reason prefixed by a `#`.
+stream.  It can also optionally contain a comment/reason preceded by ` # `.
 
 Its basic grammar is:
 
 ```ebnf
-Plan := "1.." Number ("" | "# " Reason)
+Plan := "1.." Number (" # " Reason)? "\n"
 ```
 
 A plan line of `1..0` indicates that the test set was completely skipped;
